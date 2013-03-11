@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+#-*- coding: utf-8-*-
+
+import gmenu
+import gtk
+import appindicator
+import re
+import textwrap
+import subprocess
+from optparse import OptionParser
+import xdg.IconTheme as xdgicon
+
+re_command = re.compile('%[UFuf]')
+cmd_terminal = 'gnome-terminal -e'
+include_nodisplay = False
+
+class AppsMenu(object):
+    def __init__(self):
+        self.trees = []
+        self.trees.append(self.create_tree('applications.menu'))
+        self.trees.append(self.create_tree('settings.menu'))
+
+    def create_menu_item(self, entry):    
+        icon = entry.get_icon()
+        name = entry.get_name()
+        dpath = entry.get_desktop_file_path()
+        menu_item = []
+        if (icon):
+            menu_item.append(name)
+            icon_path = xdgicon.getIconPath(icon)
+            if icon_path:
+            	menu_item.append(icon_path)
+            else:
+            	menu_item.append(icon)
+        else:
+        	menu_item.append(name)
+        if entry.get_type() ==  gmenu.TYPE_ENTRY:
+            menu_item.append(dpath)
+        return menu_item
+
+    def process_entry(self, menu, entry):
+        menu.append(self.create_menu_item(entry))
+
+    def process_directory(self, menu, dir):
+        if dir:
+            for item in dir.get_contents():
+                type = item.get_type()
+                if type == gmenu.TYPE_ENTRY:
+                    self.process_entry(menu, item)
+                elif type == gmenu.TYPE_DIRECTORY:
+                    new_menu = []
+                    menu_item = self.create_menu_item(item)
+                    menu_item.append(new_menu)
+                    menu.append(menu_item)
+                    self.process_directory(new_menu, item)
+                elif type == gmenu.TYPE_ALIAS:
+                    aliased = item.get_item()
+                    if aliased.get_type() == gmenu.TYPE_ENTRY:
+                        self.process_entry(menu, aliased)
+                elif type == gmenu.TYPE_SEPARATOR:
+                    pass
+                elif type in [ gmenu.TYPE_HEADER ]:
+                    pass
+                else:
+                    print >> sys.stderr, 'Unsupported item type: %s' % type
+
+
+    def add_to_menu(self, menu, tree):
+        root = tree.get_root_directory()    
+        self.process_directory(menu, root)
+
+    def create_menu(self):
+        menu = []
+        for t in self.trees:
+            self.add_to_menu(menu, t)
+        return menu;
+
+    def create_tree(self, name):
+        flags = gmenu.FLAGS_NONE
+        if include_nodisplay:
+            flags = flags | gmenu.FLAGS_INCLUDE_NODISPLAY
+        tree = gmenu.lookup_tree(name, flags)        
+        return tree
+
+    
+test = AppsMenu()
+print test.create_menu()

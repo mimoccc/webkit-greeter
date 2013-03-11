@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<link rel="stylesheet" type="text/css" href="desktop.css" media="all">
+
+<script type="text/javascript" src="js/l10n.js"></script>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/superfish.min.js"></script>
+<script type="text/javascript" src="js/poshytip.min.js"></script>
+<script type="text/javascript" src="js/carousel.min.js"></script>
+<script type="text/javascript" src="js/easing.min.js"></script>
+<script type="text/javascript" src="js/fancybox.min.js"></script>
+<script type="text/javascript" src="js/jquery.sidebar.js"></script>
+
+<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
+
+<script src="js/interface.js" type="text/javascript"></script>
+
+
+<script type="text/javascript" charset="utf-8" src="js/mjdevjs.js"></script>
+
+</head>
+
+<body onload="mjdevjs.init();">
+
+<div id="header">
+    <div style="section">
+        <div id="logo" class="full-width">
+            <img src="desktop/logo-ubuntu.png" alt="logo of session" height="200">
+        </div>
+    </div>
+</div>
+
+<!-- div class="dock" id="dock2">
+  <div class="dock-container2">
+  <a class="dock-item2" href="#"><span>Home</span><img src="img/dock-icons/0001.jpg" alt="home" /></a> 
+  <a class="dock-item2" href="#"><span>Contact</span><img src="img/dock-icons/0002.jpg" alt="contact" /></a> 
+  <a class="dock-item2" href="#"><span>Portfolio</span><img src="img/dock-icons/0003.jpg" alt="portfolio" /></a> 
+  <a class="dock-item2" href="#"><span>Music</span><img src="img/dock-icons/0004.jpg" alt="music" /></a> 
+  <a class="dock-item2" href="#"><span>Video</span><img src="img/dock-icons/0005.jpg" alt="video" /></a> 
+  <a class="dock-item2" href="#"><span>History</span><img src="img/dock-icons/0006.jpg" alt="history" /></a> 
+  <a class="dock-item2" href="#"><span>Calendar</span><img src="img/dock-icons/0007.jpg" alt="calendar" /></a> 
+  </div>
+</div-->
+
+<div class="message" id="message">
+	<h3>message label</h3>
+	<p>message text</p>
+</div>
+
+<div class="hidden"><div id="embed-theme">test</div></div>
+<div class="hidden"><div id="embed-facebook">test</div></div>
+<div class="hidden"><div id="embed-twitter">test</div></div>
+
+</body>
+
+<script language="javascript">
+mjdevjs.onAppStart.subscribeOnce(function() {
+	if(!(window.App instanceof Object)) {
+
+		$ = jQuery;
+
+		window.App = {
+			alert : function(text, label, type, time){
+				$("#message").attr("class", (type||'success') + " message");
+				$("#message h3").html((label||'alert'));
+				$("#message p").html((text||''));
+				$("#message").fadeIn('slow', function() {
+					$("#message").click(function(){	$("#message").fadeOut('slow', function(){}); });
+				}).delay((time||2000)).fadeOut('slow', function(){});
+			},
+			started : false,
+			_body : mjdevjs._body,
+			info : function(text) {	App.alert(text, 'logon info', 'info'); },
+			problem : function(text) { App.alert(text, 'logon problem', 'error'); },
+			ready : function() {
+				if (this.started) return;
+				else this.started = true;
+				
+				// load and initialise Clock component
+				mjdevjs.loadComponent('clock',function() {
+					App.clockwidget = new Clock({id:'clock_widget', append:App._body});
+					App.clockwidget.create();
+					App.clockwidget.show();
+					$( "#clock_widget" ).draggable();
+					
+					mjdevjs.loadComponent('audioplayer',function() {
+						App.audiowidget = new AudioPlayer({id:'audio_widget', append:App._body});
+						App.audiowidget.create();
+						App.audiowidget.show();
+						$( "#audio_widget" ).draggable();
+					});
+					
+					$(document).ready(function($) { 
+						
+						$(document).keypress(function(e) {
+							var code = (e.keyCode ? e.keyCode : e.which);
+							if(code == 13) { //enter
+								if(App.selected_user) {
+									logon.users[App.selected_user.attr("idx")].password = 
+										$('#password'+(parseInt(App.selected_user.attr("idx"))+2)).val();
+									document.title='login:'+logon.users[App.selected_user.attr("idx")].toString();
+								}
+							}
+							if(code == 37) //right
+								if(App.selected_user==false) $('#carousel').prev();
+							if(code == 39) //left
+								if(App.selected_user==false) $('#carousel').next();
+							if(code == 27) //escape
+								$.fancybox.close();
+						});
+					
+						//$.easing['BounceEaseOut'] = function(p, t, b, c, d) {
+						//	if ((t/=d) < (1/2.75)) {
+						//		return c*(7.5625*t*t) + b;
+						//	} else if (t < (2/2.75)) {
+						//		return c*(7.5625*(t-=(1.5/29.75))*t + .75) + b;
+						//	} else if (t < (2.5/2.75)) {
+						//		return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+						//	} else {
+						//		return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+						//	}
+						//};
+
+						$('#dock2').Fisheye({
+							maxWidth: 160,
+							items: 'a',
+							itemsText: 'span',
+							container: '.dock-container2',
+							itemWidth: 90,
+							proximity: 80,
+							alignment : 'left',
+							valign: 'bottom',
+							halign : 'center'
+						});
+
+						$('#carousel').jcarousel({
+							wrap: 'both',
+							scroll: 1,
+							start: 1,
+							auto: 0,
+							animation: 'slow',
+							//easing: 'BounceEaseOut',
+							buttonNextHTML: '<div class="arrow forward hover"></div>',
+							buttonPrevHTML: '<div class="arrow back hover"></div>'
+						});
+
+						$("a.shots").fancybox({
+							transitionIn	: 'elastic',
+							transitionOut	: 'elastic',
+							titlePosition	: 'over',
+							overlayColor	: '#202020',
+							overlayOpacity	: 1,
+							padding		: '10',
+							titleFormat	:
+								function(title, currentArray, currentIndex, currentOpts) {
+										return 
+										'<span id="fancybox-title-over">Image ' + 
+										(currentIndex + 1) + ' / ' + 
+										currentArray.length + 
+										(title.length ? ' &nbsp; ' + title : '') 
+										+ '</span>';
+								}
+						});
+
+					    $("a.extlink").fancybox({
+						     width			: '100%',
+						     height			: '90%',
+						     autoScale		: false,
+						     transitionIn	: 'elastic',
+						     transitionOut	: 'elastic',
+						     type 			: 'iframe',
+						     autoDimensions	: false,
+						     overlayColor	: '#202020',
+						     overlayOpacity	: 0.9,
+						     padding		: '0',
+						     titleShow		: false
+					     });
+
+						$("a.user").fancybox({
+							width		: 'auto',
+							height		: 'auto',
+							transitionIn	: 'elastic',
+							transitionOut	: 'elastic',
+							autoDimensions	: false,
+							overlayColor	: '#202020',
+							overlayOpacity	: 0.9,
+							padding		: '0',
+							titleShow	: false,
+							onStart		: function(selectedArray, selectedIndex, selectedOpts){
+								var objid = selectedArray[selectedIndex].toString();
+								objid = objid.substr(objid.indexOf('#'));
+								var obj = $(objid);
+								App.fancybox = selectedOpts;
+								App.selected_user = obj;
+							},
+							onClosed	:function(){
+								App.selected_user = false;
+								document.title = '';
+							},
+							onComplete	: function(){
+								if(App.selected_user) {
+									var obj = parseInt(App.selected_user.attr("idx"));
+									obj = $('#password'+(obj+2));
+									try{ obj.focus(); }catch(e){}
+									
+								}
+							}
+						});
+						
+						$("a.fullscreen").fancybox({
+							width		: '100%',
+							height		: '100%',
+							transitionIn	: 'elastic',
+							transitionOut	: 'elastic',
+							autoDimensions	: false,
+							overlayColor	: '#202020',
+							overlayOpacity	: 0.9,
+							padding		: '0',
+							titleShow	: false,
+  							titlePosition: 'inside',
+  							autoScale: false
+						});
+
+						$('.excerpt-text').poshytip({
+							className: 'tooltip',
+							showTimeout: 1,
+							hideTimeout: 1000,
+							alignTo: 'target',
+							alignX: 'center',
+							offsetY: 5,
+							allowTipHover: true,
+							content: '[title]'
+						});
+
+						$('.page-text').poshytip({
+							className: 'tooltip',
+							showTimeout: 1,
+							hideTimeout: 1000,
+							alignTo: 'target',
+							alignX: 'inner-right',
+							offsetY: 9,
+							offsetX: 0,
+							allowTipHover: true,
+							content: '[title]'
+						});
+
+						//$('ul.menu').superfish();
+
+						mjdevjs.onAppReady.fire();
+						App.alert('Welcome in mUbuntu','Welcome','info');
+						
+					});
+				}, App);
+			},
+		};
+		//test
+		App.ready();
+	}
+}, this, 'app');
+</script>
+</html>

@@ -1,0 +1,54 @@
+//------------------------------------------------------------------------
+
+if (!(Logo instanceof Object)) {
+
+	var Logo = function (config) {
+		this.id			= mjdevjs.createUUID();
+		this.name		= '';
+		this.renderTo	= mjdevjs._body;
+		this.visible 	= false;
+		this.draggable  = false; 
+		this.require	= [];
+		this.css		= {
+			component : {
+				position	: 'absolute',
+				left		: '50%', 
+				top			: '100px',
+				height		: '200px',
+				text_align	: 'center',
+				margin_left : '-100px'
+			}
+		};
+		
+		mjdevjs.config(this, config);
+		
+	};
+
+	Logo.prototype.create = function () {
+		this.canvas	  = mjdevjs.me({type:mjdevjs.DOM_TYPE_DIV, id:this.id, style: mjdevjs.style(this.css.component), append:this.append, class:(this.draggable)?'ui-draggable':'' });
+		this.canvas.hide();
+		this.jqe	  = $('#'+this.id)
+		if(this.draggable) this.jqe.draggable();
+	};
+
+	Logo.prototype.show = function () { 
+		if (!this.visible) {
+			this.canvas.show(); 
+			this.visible = true;
+		}
+	};
+
+	Logo.prototype.setImage = function (url) { this.canvas.innerHTML = '<img width=200px height=200px src='+ url +' />'; };
+
+	Logo.prototype.setText = function (text) { this.canvas.innerHTML = text; };
+
+	Logo.prototype.hide = function () { 
+		if (this.visible) {
+			this.canvas.hide();
+			this.visible = false;
+		}
+	};
+
+};
+
+//------------------------------------------------------------------------

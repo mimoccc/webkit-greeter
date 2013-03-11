@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=GDM Webkit Greeter
+Exec=/usr/share/webkit-logon/greeter.py
+OnlyShowIn=GNOME;
+X-GNOME-Autostart-Phase=Application
+X-GNOME-Autostart-Notify=true
+X-GNOME-AutoRestart=true
+X-Ubuntu-Gettext-Domain=gdm

@@ -1,0 +1,89 @@
+//------------------------------------------------------------------------
+
+if (!(CoverFlow instanceof Object)) {
+
+	var CoverFlow = function (config) {
+		this.id			= mjdevjs.createUUID();
+		this.name		= '';
+		this.renderTo	= mjdevjs._body;
+		this.visible 	= false;
+		this.draggable  = true; 
+		this.content 	= [];
+		this.require	= [
+			'jquery.roundabout.min.js',
+			'jquery-ui-1.8.16.custom.min.js'
+		];
+		this.css		= {
+			component : {
+				position	: 'absolute',
+				left		: '100px', 
+				top			: '100px',
+				width		: '150px', 
+				height		: '100px',
+				padding		: 0
+			},
+			roundabout_moveable_item : {
+				width				: '150px',
+				height				: '100px',
+				cursor				: 'pointer',
+				background_color	: 'rgba(0,0,0,1)',
+				border				: '2px solid rgba(255,255,255,0.5)',
+				box_shadow			: '0 0 5px #000000'
+			},
+			roundabout_in_focus : {  
+				border		: '2px solid rgba(0,0,0,0.7)',
+				box_shadow	: '0 0 8px #000000'
+			}
+		};
+		
+		mjdevjs.config(this, config);
+		
+	};
+
+	CoverFlow.prototype.create = function () {
+		this.canvas	  = mjdevjs.me({type:mjdevjs.DOM_TYPE_UL, id:this.id, style: mjdevjs.style(this.css.component), append:this.append, class:(this.draggable)?'ui-draggable':''});
+		this.canvas.hide();
+		for(var i=0; i<this.content.length; i++) {
+			if (typeof(this.content[i])==='string') {
+				mjdevjs.me({
+					type	: mjdevjs.DOM_TYPE_LI, 
+					append	: this.canvas, 
+					html	: this.content[i],
+					style	: mjdevjs.style(this.css.roundabout_moveable_item)
+				});
+			}
+		}
+		this.jqe	  = $('#'+this.id);
+		this.jqe.roundabout();
+		if(this.draggable) this.jqe.draggable();
+//todo : remaster this
+		mjdevjs.createCSS('.roundabout-in-focus', mjdevjs.style(this.css.roundabout_in_focus));
+//todo : remaster this		
+	};
+
+	CoverFlow.prototype.add = function (object) { 
+		this.content.push(object);
+	};
+
+	CoverFlow.prototype.rebuild = function () {
+		this.renderTo.removeChild(this.append);
+		this.create();
+	}; 
+
+	CoverFlow.prototype.show = function () { 
+		if (!this.visible) {
+			this.canvas.show(); 
+			this.visible = true;
+		}
+	};
+
+	CoverFlow.prototype.hide = function () { 
+		if (this.visible) {
+			this.canvas.hide();
+			this.visible = false;
+		}
+	};
+
+};
+
+//------------------------------------------------------------------------
